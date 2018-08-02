@@ -1,0 +1,15 @@
+kafkasink(name, packageName, brokerList, topic) ::= <<
+
+package <packageName>;
+
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer09;
+import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
+
+public class <name> extends FlinkKafkaProducer09\<String> implements Operatorable {
+
+    public <name>() {
+        super("<brokerList>", "<topic>", new SimpleStringSchema());
+    }
+}
+
+>>

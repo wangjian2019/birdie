@@ -1,0 +1,88 @@
+extractoperator(name, packageName, args) ::= <<
+
+package <packageName>;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections.MapUtils;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
+import org.apache.flink.util.Collector;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class <name> extends RichFlatMapFunction\<JsonNode, JsonNode> implements Operatorable {
+
+    private static ObjectMapper jsonMapper = new ObjectMapper();
+    private static Map\<String, String> extractMap = createExtractMap();
+
+    private static Map\<String, String> createExtractMap() {
+        List\<KV> kvList = Arrays.asList(<entryset(args)>);
+        return KV.toMap(kvList);
+    }
+
+    public void flatMap(JsonNode value, Collector\<JsonNode> out) throws Exception {
+        if (value == null)
+            return;
+        out.collect(extract(value));
+    }
+
+    public JsonNode extract(JsonNode value) {
+        Map\<String, Object> map = new HashMap\<String, Object>();
+        if (MapUtils.isNotEmpty(extractMap)) {
+            for (Map.Entry\<String, String> entry : extractMap.entrySet()) {
+                String[] jsonPaths = entry.getValue().split("\\\.");
+                Object srcObj = null;
+                JsonNode currentJsonObj = value;
+                for (int i=0; i \< jsonPaths.length ; i++) {
+                    if (i == jsonPaths.length-1) {
+                        srcObj = currentJsonObj.get(jsonPaths[i]);
+                    } else {
+                        if (currentJsonObj == null)
+                            break;
+                        currentJsonObj = currentJsonObj.get(jsonPaths[i]);
+                    }
+                }
+                if (srcObj != null)
+                    map.put(entry.getKey(), srcObj);
+            }
+        }
+        try {
+            return jsonMapper.readTree(jsonMapper.writeValueAsString(map));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static class KV {
+        public String key;
+        public String value;
+
+        public KV(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public static Map\<String, String> toMap(List\<KV> kvList) {
+            Map\<String, String> map = new HashMap\<>();
+            for (KV kv : kvList) {
+                map.put(kv.key, kv.value);
+            }
+            return map;
+        }
+    }
+}
+
+>>
+
+entryset(args) ::= <<
+    <if(args)>
+        <args:bracket(); separator=",">
+    <endif>
+>>
+
+bracket(x) ::= "new KV(\"<x.key>\", \"<x.value>\")"

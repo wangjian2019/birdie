@@ -1,0 +1,24 @@
+kafkasource(name, packageName, topic, brokerList, groupId) ::= <<
+
+package <packageName>;
+
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer09;
+import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
+import java.util.Properties;
+
+public class <name> extends FlinkKafkaConsumer09\<String> implements Operatorable {
+
+    private static Properties props = new Properties();
+
+    static {
+        props.put("bootstrap.servers", "<brokerList>");
+        props.put("group.id", "<groupId>");
+    }
+
+    public <name>() {
+        super("<topic>", new SimpleStringSchema(), props);
+    }
+
+}
+
+>>

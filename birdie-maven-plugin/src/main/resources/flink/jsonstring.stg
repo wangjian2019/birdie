@@ -1,0 +1,18 @@
+jsonstring(name, packageName) ::= <<
+
+package <packageName>;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
+import org.apache.flink.util.Collector;
+
+public class <name> extends RichFlatMapFunction\<JsonNode, String> implements Operatorable {
+
+    public void flatMap(JsonNode value, Collector\<String> out) throws Exception {
+        if (value == null)
+            return;
+        out.collect(value.toString());
+    }
+}
+
+>>

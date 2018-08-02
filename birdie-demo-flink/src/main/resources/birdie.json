@@ -1,0 +1,80 @@
+{
+  "flow": [
+    {
+      "name": "KafkaSource",
+      "type": "source",
+      "next": "String2Json"
+    },
+    {
+      "name":"String2Json",
+      "type":"StringJsonOperator",
+      "next":"MappingOperator"
+    },
+    {
+      "name":"MappingOperator",
+      "type":"MappingOperator",
+      "next":"ExtractOperator0"
+    },
+    {
+      "name":"ExtractOperator0",
+      "type":"ExtractOperator",
+      "next":"Json2String"
+    },
+    {
+      "name":"Json2String",
+      "type":"JsonStringOperator",
+      "next":""
+    },
+    {
+      "name": "KafkaSink",
+      "type": "sink",
+      "next": ""
+    }
+  ],
+  "operator": [
+    {
+      "name":"KafkaSource",
+      "type":"source",
+      "topic":"analytics_game_etl_install",
+      "brokerList":"172.20.6.1:9092,172.20.6.2:9092,172.20.6.3:9092",
+      "groupId":"test-group"
+    },
+    {
+      "name":"KafkaSink",
+      "type":"sink",
+      "brokerList":"172.20.6.1:9092,172.20.6.2:9092,172.20.6.3:9092",
+      "topic":"hehe"
+    },
+    {
+      "name":"ExtractOperator0",
+      "type":"ExtractOperator",
+      "mapping":{
+        "productId":"app.productid",
+        "platform":"app.platformid",
+        "sdkVersion":"app.sdkVersion",
+        "userOffset":"user.offset",
+        "deviceOffset":"device.offset",
+        "eventTime":"event.attribute.eventOccurTime"
+      }
+    },
+    {
+      "name":"String2Json",
+      "type":"StringJsonOperator"
+    },
+    {
+      "name":"Json2String",
+      "type":"JsonStringOperator"
+    },
+    {
+      "name":"MappingOperator",
+      "type":"MappingOperator",
+      "src":"app.platformid",
+      "dist":"app.platformid",
+      "mapping":{
+        "1":"Android",
+        "2":"IOS",
+        "16":"H5"
+      }
+    }
+  ]
+}

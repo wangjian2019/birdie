@@ -1,0 +1,9 @@
+operatorable(packageName) ::= <<
+
+package <packageName>;
+
+public interface Operatorable {
+
+}
+
+>>

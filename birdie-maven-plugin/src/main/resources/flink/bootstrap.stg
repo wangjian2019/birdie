@@ -1,0 +1,33 @@
+bootstrap(packageName,source,sink,operators) ::= <<
+
+package <packageName>;
+import <packageName>.operator.*;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+
+
+public class Bootstrap {
+    public static void main(String[] args) throws Exception {
+        StreamExecutionEnvironment env = getEnvironment();
+        DataStream stream = env.addSource(new <source>());
+        <operatorlist(operators)>
+        stream.addSink(new <sink>());
+        env.execute("BirdieSelfTest");
+    }
+
+    public static StreamExecutionEnvironment getEnvironment() {
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        return env;
+    }
+
+}
+>>
+
+operatorlist(operators) ::= <<
+    <if(operators)>
+        <operators:bracket(); separator="\n">
+    <endif>
+>>
+
+
+bracket(operator) ::= " stream= stream.flatMap(new <operator>());"
